@@ -141,9 +141,6 @@ uniform COMPAT_PRECISION float XBRZ_MINC_RAMP;
 #define BLEND_NORMAL 1.
 #define BLEND_DOMINANT 2.
 #define LUMINANCE_WEIGHT 1.0
-#define EQUAL_COLOR_TOLERANCE 30.0/255.0
-#define STEEP_DIRECTION_THRESHOLD 2.2
-#define DOMINANT_DIRECTION_THRESHOLD 3.6
 
 float DistYCbCr(vec3 pixA, vec3 pixB)
 {
@@ -158,15 +155,11 @@ float DistYCbCr(vec3 pixA, vec3 pixB)
   return sqrt(((LUMINANCE_WEIGHT * Y) * (LUMINANCE_WEIGHT * Y)) + (Cb * Cb) + (Cr * Cr));
 }
 
-bool IsPixEqual(const vec3 pixA, const vec3 pixB)
-{
-  return (DistYCbCr(pixA, pixB) < EQUAL_COLOR_TOLERANCE);
-}
-
 // Minimum contrast: how much of the corner cut a blend keeps, from the contrast between
 // the pixel and the blend colour (0 = none, 1 = all). With XBRZ_MINC = 0 every cut is kept.
 float mincKeep(float d)
 {
+  if (XBRZ_MINC <= 0.0) return 1.0;
   if (XBRZ_MINC_RAMP < 0.5) return d * 255.0 >= XBRZ_MINC ? 1.0 : 0.0;
   return clamp((d * 255.0 - (XBRZ_MINC - 0.5 * XBRZ_MINC_RAMP)) / XBRZ_MINC_RAMP, 0.0, 1.0);
 }
